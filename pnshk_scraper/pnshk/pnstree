@@ -1,0 +1,7 @@
+https://api.pns.hk/api/v2/pnshk/categories/multi/04000000?lang=zh_HK&curr=HKD
+
+subcat
+https://api.pns.hk/api/v2/pnshk/categories/multi/04010100?lang=zh_HK&curr=HKD
+
+product:
+https://api.pns.hk/api/v2/pnshk/products/search?fields=FULL&query=%3AbestSeller%3Acategory%3A04010100&pageSize=1000&sort=bestSeller&lang=zh_HK&curr=HKD
