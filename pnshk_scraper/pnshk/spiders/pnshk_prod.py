@@ -51,7 +51,7 @@ class PnshkProdSpider(scrapy.Spider):
             product_url = i.get('url')
             product_code = i.get('code')
             self.logger.info(f'current product code: {product_code}')
-            url = f'https://www.pns.hk/zh-hk/p/{product_code}'
+            url = f'https://www.pns.hk/zh-hk{product_url}'
             yield scrapy.Request(url=url, callback=self.product_page, headers=self.payload, 
                 meta={'product_code': product_code, 'crawl_type': 'product_page', 'subcat': subcat}, 
                             errback=self.handle_failure)

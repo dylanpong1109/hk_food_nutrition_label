@@ -13,21 +13,22 @@ from manual_correct import *
 Pipeline to parse google ocr result into csv table
 '''
 
-nutrition_list = ['product', 'energy', 'protein', 'total fat', 'saturated fat', 
-                'trans fat', 'carbohydrate', 'dietary fiber',
-                'sugars', 'sodium']
-column_list = ['product', 'hundred energy', 'hundred protein', 'hundred total fat', 
-                'hundred saturated fat', 'hundred trans fat', 'hundred carbohydrate', 
-                'hundred dietary fiber', 'hundred sugars', 'hundred sodium', 'per serve',
-                'serve energy', 'serve protein', 'serve total fat', 'serve saturated fat', 
-                'serve trans fat', 'serve carbohydrate', 'serve dietary fiber',
-                'serve sugars', 'serve sodium']
+nutrition_list = ['product', 'energy', 'protein', 'total fat', 'saturated fat',
+                  'trans fat', 'carbohydrate', 'dietary fiber',
+                  'sugars', 'sodium']
+column_list = ['product', 'hundred energy', 'hundred protein', 'hundred total fat',
+               'hundred saturated fat', 'hundred trans fat', 'hundred carbohydrate',
+               'hundred dietary fiber', 'hundred sugars', 'hundred sodium', 'per serve',
+               'serve energy', 'serve protein', 'serve total fat', 'serve saturated fat',
+               'serve trans fat', 'serve carbohydrate', 'serve dietary fiber',
+               'serve sugars', 'serve sodium']
+
 
 def parse_result(raw_csv, interim_csv):
 
     df = pd.read_csv(raw_csv)
     # remove first row (whole pic text)
-    df = df.iloc[1:,:]
+    df = df.iloc[1:, :]
     # Convert 'coordinate' column from string type to tuple type
     df['bottomleft'] = df['bottomleft'].apply(ast.literal_eval)
     df['topleft'] = df['topleft'].apply(ast.literal_eval)
@@ -41,17 +42,17 @@ def parse_result(raw_csv, interim_csv):
     # Sort dataframe by y-coordinates
     df = df.sort_values(['y'])
 
-    df['group'] = 0 # Initialize the 'group' column
+    df['group'] = 0  # Initialize the 'group' column
     current_group = 0
-    min_y = df.iloc[0]['y'] # Initialize the minimum 'y' value
+    min_y = df.iloc[0]['y']  # Initialize the minimum 'y' value
 
     # Iterate through the sorted 'y' values
     for i in range(1, len(df)):
-        if df.iloc[i]['y'] - min_y > df.iloc[i]['font_height'] * 3/4: # Check if the difference is greater than 10
-            current_group += 1 # Increment the group number
-            min_y = df.iloc[i]['y'] # Update the minimum 'y' value
-        df.iloc[i, df.columns.get_loc('group')] = current_group # Assign the group number
-        
+        if df.iloc[i]['y'] - min_y > df.iloc[i]['font_height'] * 3/4:  # Check if the difference is greater than 10
+            current_group += 1  # Increment the group number
+            min_y = df.iloc[i]['y']  # Update the minimum 'y' value
+        df.iloc[i, df.columns.get_loc('group')] = current_group  # Assign the group number
+
     # # Create a new column 'group' to indicate the group of rows based on the difference of y-coordinate
     # df['group'] = (df['y'].diff() > 10).cumsum()
 
@@ -66,10 +67,11 @@ def parse_result(raw_csv, interim_csv):
         'bottomleft': lambda x: tuple(x)
     }).reset_index(drop=True)
     df_grouped = df_grouped.dropna(subset=['description'])
-    df_grouped = df_grouped[df_grouped.description!='']
-    
+    df_grouped = df_grouped[df_grouped.description != '']
+
     df_grouped.to_csv(interim_csv, index=False)
     return df_grouped
+
 
 def identify_col(text):
     pre_serve = r'per\s*serving'
@@ -90,6 +92,7 @@ def identify_col(text):
         print('identify none')
         return None
 
+
 def grep_val(col_type, pattern, text):
     val = re.findall(pattern, text)
     if val == []:
@@ -104,12 +107,14 @@ def grep_val(col_type, pattern, text):
         elif col_type == 'serve':
             return ('', val[0].strip())
 
-def stored_info(file, input_list, header = False):
-    with open(file, 'a+') as f:   
-        writer = csv.DictWriter(f, fieldnames = column_list)
+
+def stored_info(file, input_list, header=False):
+    with open(file, 'a+') as f:
+        writer = csv.DictWriter(f, fieldnames=column_list)
         if header:
             writer.writeheader()
         writer.writerows(input_list)
+
 
 def parse_table(df, product):
     nutrition_dict = dict()
@@ -143,7 +148,7 @@ def parse_table(df, product):
                     _, nutrition, after_nutrition = text.partition(nutrition)
                     print('nutrition', nutrition)
                     if nutrition == 'energy':
-                        after_nutrition = o_to_0(after_nutrition) 
+                        after_nutrition = o_to_0(after_nutrition)
                         energy_val = grep_val(col_type, kcal_pattern, after_nutrition)
                         if energy_val != ('', ''):
                             nutrition_dict[f'hundred {nutrition}'], nutrition_dict[f'serve {nutrition}'] = energy_val
@@ -163,13 +168,13 @@ def parse_table(df, product):
                                 nutrition_dict[f'serve {nutrition}'] = ''
                         # nutrition_dict[nutrition] = energy_val[0].strip() if col_type != 'hundred_right' else energy_val[-1].strip()
                     elif nutrition == 'sodium':
-                        after_nutrition = digit_to_mg(after_nutrition) 
-                        after_nutrition = o_to_0(after_nutrition) 
+                        after_nutrition = digit_to_mg(after_nutrition)
+                        after_nutrition = o_to_0(after_nutrition)
                         nutrition_dict[f'hundred {nutrition}'], nutrition_dict[f'serve {nutrition}'] = grep_val(col_type, sodium_pattern, after_nutrition)
                         # nutrition_dict[nutrition] = nutrition_val[0].strip() if col_type != 'hundred_right' else nutrition_val[-1].strip()
                     else:
                         after_nutrition = digit_gram_convert(after_nutrition)
-                        after_nutrition = o_to_0(after_nutrition) 
+                        after_nutrition = o_to_0(after_nutrition)
                         nutrition_dict[f'hundred {nutrition}'], nutrition_dict[f'serve {nutrition}'] = grep_val(col_type, pattern, after_nutrition)
                         # nutrition_dict[nutrition] = nutrition_val[0].strip() if col_type != 'hundred_right' else nutrition_val[-1].strip()
     print(nutrition_dict)
@@ -197,7 +202,8 @@ def main(base_dir, output_csv):
     else:
         stored_info(output_csv, input_list, header=True)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
 
     config = ConfigParser()
 

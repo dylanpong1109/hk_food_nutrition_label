@@ -19,8 +19,11 @@ class CustomRetryMiddleware(RetryMiddleware):
             reason = response_status_message(response.status)
             return self._retry(request, reason, spider) or response
 
-        # this is your check
         if response.status == 200 and spider.retry:
+            return self._retry(request, 'spider retry', spider) or response
+        
+        if response.status == 403:
+            request.meta['dont_retry'] = True
             return self._retry(request, 'spider retry', spider) or response
         return response
 
