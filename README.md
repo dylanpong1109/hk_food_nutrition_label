@@ -2,30 +2,29 @@
 
 This repository contains tables with food information, including product details, categories, and nutrition facts.
 
-## Table 1: Food Information Table (open_data/food_info.csv)
-- **subcat**: Subcategory code
-- **product_code**: Product code
+## Table 1: Food Category Table (open_data/food_subcategory.csv)
+- **food_cat_name**: Food category name
+- **food_cat_code**: Food category code
+- **food_subcat_name**: Food subcategory name
+- **food_subcat_code**: Food subcategory code
+
+Example data:
+```
+food_cat_name,food_cat_code,food_subcat_name,food_subcat_code
+即食麵/飯、粉麵、意大利粉,04040200,杯麵、碗麵,04040201
+即食麵/飯、粉麵、意大利粉,04040200,即食麵、公仔麵,04040202
+```
+## Table 2: Food Information Table (open_data/food_info.csv)
+- **food_subcat_code**: Food subcategory code
+- **product**: Product code
 - **product_brand**: Product brand
 - **product_name**: Product name
 
 Example data:
 ```
-subcat,product_code,product_brand,product_name
+food_subcat_code,product,product_brand,product_name
 04040201,BP_136717,壽桃牌,壽桃碗生麵皇(鮑雞味)
 04040202,BP_116743,REEVA,牛肉味即食麵５包裝
-```
-
-## Table 2: Food Category Table (open_data/food_subcategory.csv)
-- **subcat_name**: Subcategory name
-- **subcat_code**: Subcategory code
-- **sub_subcat_name**: Sub-subcategory name
-- **sub_subcat_code**: Sub-subcategory code
-
-Example data:
-```
-subcat_name,subcat_code,sub_subcat_name,sub_subcat_code
-即食麵/飯、粉麵、意大利粉,04040200,杯麵、碗麵,04040201
-即食麵/飯、粉麵、意大利粉,04040200,即食麵、公仔麵,04040202
 ```
 
 ## Table 3: Nutrition Table (open_data/nutrition_data.csv)
