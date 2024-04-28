@@ -1,3 +1,5 @@
 /pnshk_scraper/pnshk/settings.py
+/config_backup/*
 *.log
 *.txt
+*.ini
